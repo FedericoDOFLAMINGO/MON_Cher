@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para Ti, Mi Todo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cafe-oscuro: #2C1810;
+    --cafe-medio: #5C3317;
+    --cafe-calido: #8B4513;
+    --cafe-dorado: #A0522D;
+    --morado-profundo: #2D1B3D;
+    --morado-medio: #6B3FA0;
+    --morado-suave: #9B72CF;
+    --morado-claro: #C4A7E7;
+    --negro-profundo: #0A0A0F;
+    --verde-olivo: #4A5240;
+    --verde-olivo-claro: #6B7A5C;
+    --verde-salvia: #8FAF7E;
+    --dorado: #C9A84C;
+    --crema: #F4ECD8;
+    --blanco-hueso: #FAF6EE;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--negro-profundo);
+    min-height: 100vh;
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CURSOR PERSONALIZADO */
+  .cursor {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    background: var(--morado-suave);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: screen;
+    transition: transform 0.1s ease;
+  }
+  .cursor-trail {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--dorado);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.5;
+    transition: transform 0.3s ease, left 0.15s ease, top 0.15s ease;
+  }
+
+  /* FONDO ANIMADO */
+  .bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: 
+      radial-gradient(ellipse at 20% 50%, rgba(45,27,61,0.8) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(44,24,16,0.9) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 80%, rgba(74,82,64,0.4) 0%, transparent 45%),
+      linear-gradient(135deg, #0A0A0F 0%, #1a0d1f 30%, #150b08 60%, #0d1008 100%);
+    animation: bgShift 12s ease-in-out infinite alternate;
+  }
+
+  @keyframes bgShift {
+    0% { filter: hue-rotate(0deg) brightness(1); }
+    33% { filter: hue-rotate(15deg) brightness(1.05); }
+    66% { filter: hue-rotate(-10deg) brightness(0.95); }
+    100% { filter: hue-rotate(5deg) brightness(1.02); }
+  }
+
+  /* PARTÍCULAS */
+  .particles {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: floatUp linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(110vh) translateX(0) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.7; }
+    100% { transform: translateY(-10vh) translateX(var(--drift)) rotate(360deg); opacity: 0; }
+  }
+
+  /* CONTENEDOR PRINCIPAL */
+  .main-container {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+  }
+
+  /* INTRO PANTALLA */
+  .intro-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: var(--negro-profundo);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 1.5s ease, transform 1.5s ease;
+  }
+
+  .intro-screen.hidden {
+    opacity: 0;
+    transform: scale(1.05);
+    pointer-events: none;
+  }
+
+  .intro-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    color: var(--dorado);
+    text-align: center;
+    letter-spacing: 0.3em;
+    opacity: 0;
+    animation: fadeInTitle 2s ease 0.5s forwards;
+    text-shadow: 0 0 40px rgba(201,168,76,0.6), 0 0 80px rgba(155,114,207,0.3);
+  }
+
+  .intro-subtitle {
+    font-family: 'IM Fell English', serif;
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    color: var(--morado-claro);
+    text-align: center;
+    font-style: italic;
+    margin-top: 1rem;
+    opacity: 0;
+    animation: fadeInTitle 2s ease 1.5s forwards;
+    letter-spacing: 0.1em;
+  }
+
+  .btn-open {
+    margin-top: 3rem;
+    padding: 14px 48px;
+    background: transparent;
+    border: 1px solid var(--dorado);
+    color: var(--dorado);
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    letter-spacing: 0.25em;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.4s ease;
+    opacity: 0;
+    animation: fadeInTitle 2s ease 2.5s forwards;
+  }
+
+  .btn-open::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--morado-profundo), var(--cafe-oscuro));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+    z-index: -1;
+  }
+
+  .btn-open:hover::before { transform: scaleX(1); }
+  .btn-open:hover { color: var(--crema); border-color: var(--morado-suave); }
+
+  @keyframes fadeInTitle {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* CARTA */
+  .letter-wrapper {
+    width: 100%;
+    max-width: 780px;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 1.5s ease 0.3s, transform 1.5s ease 0.3s;
+  }
+
+  .letter-wrapper.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* SELLO SUPERIOR */
+  .seal-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 3rem;
+    gap: 0.8rem;
+  }
+
+  .seal-ornament {
+    font-size: 3rem;
+    color: var(--dorado);
+    animation: pulse 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(201,168,76,0.6));
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(201,168,76,0.6)); }
+    50% { transform: scale(1.08); filter: drop-shadow(0 0 35px rgba(201,168,76,0.9)); }
+  }
+
+  .seal-line {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .seal-line::before, .seal-line::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--dorado), var(--morado-suave), var(--dorado), transparent);
+  }
+
+  .seal-text {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    color: var(--morado-claro);
+    white-space: nowrap;
+  }
+
+  /* PANELES DE CARTA */
+  .letter-panel {
+    position: relative;
+    background: linear-gradient(160deg, 
+      rgba(44,24,16,0.85) 0%, 
+      rgba(45,27,61,0.9) 40%, 
+      rgba(74,82,64,0.7) 80%,
+      rgba(44,24,16,0.85) 100%);
+    border: 1px solid rgba(201,168,76,0.25);
+    padding: 3rem 3.5rem;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+    transition: border-color 0.4s ease, transform 0.3s ease;
+  }
+
+  .letter-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at top left, rgba(155,114,207,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(143,175,126,0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .letter-panel:hover {
+    border-color: rgba(201,168,76,0.5);
+    transform: translateY(-3px);
+  }
+
+  /* CORNER ORNAMENTS */
+  .corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    opacity: 0.6;
+  }
+  .corner-tl { top: 12px; left: 12px; border-top: 1px solid var(--dorado); border-left: 1px solid var(--dorado); }
+  .corner-tr { top: 12px; right: 12px; border-top: 1px solid var(--dorado); border-right: 1px solid var(--dorado); }
+  .corner-bl { bottom: 12px; left: 12px; border-bottom: 1px solid var(--dorado); border-left: 1px solid var(--dorado); }
+  .corner-br { bottom: 12px; right: 12px; border-bottom: 1px solid var(--dorado); border-right: 1px solid var(--dorado); }
+
+  /* SALUDO */
+  .greeting {
+    font-family: 'IM Fell English', serif;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    color: var(--dorado);
+    font-style: italic;
+    margin-bottom: 2rem;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    line-height: 1.5;
+  }
+
+  .greeting.show { opacity: 1; transform: translateX(0); }
+
+  /* PÁRRAFOS */
+  .letter-paragraph {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+    line-height: 2;
+    color: var(--crema);
+    margin-bottom: 1.8rem;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+    font-weight: 300;
+  }
+
+  .letter-paragraph.show { opacity: 1; transform: translateY(0); }
+
+  .letter-paragraph em {
+    font-style: italic;
+    color: var(--morado-claro);
+  }
+
+  .letter-paragraph strong {
+    font-weight: 600;
+    color: var(--verde-salvia);
+    letter-spacing: 0.03em;
+  }
+
+  /* VERSO DESTACADO */
+  .verse-block {
+    margin: 2.5rem 0;
+    padding: 1.8rem 2.5rem;
+    border-left: 3px solid var(--morado-medio);
+    background: linear-gradient(90deg, rgba(107,63,160,0.15), transparent);
+    position: relative;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+  .verse-block.show { opacity: 1; transform: translateX(0); }
+
+  .verse-block p {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: clamp(1.1rem, 3vw, 1.4rem);
+    color: var(--morado-claro);
+    line-height: 1.9;
+  }
+
+  /* PALABRAS INTERACTIVAS */
+  .word-glow {
+    display: inline;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .word-glow:hover {
+    color: var(--dorado);
+    text-shadow: 0 0 20px rgba(201,168,76,0.8), 0 0 40px rgba(201,168,76,0.4);
+  }
+
+  .word-glow::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(45,27,61,0.97);
+    border: 1px solid var(--morado-suave);
+    color: var(--crema);
+    font-size: 0.8rem;
+    font-style: italic;
+    padding: 8px 14px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    font-family: 'IM Fell English', serif;
+    z-index: 100;
+    border-radius: 2px;
+  }
+
+  .word-glow:hover::after { opacity: 1; }
+
+  /* SECCIÓN CORAZÓN INTERACTIVO */
+  .heart-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .heart-container {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 2rem;
+  }
+
+  .heart-svg {
+    width: 100px;
+    height: 100px;
+    animation: heartbeat 2.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 25px rgba(155,114,207,0.8)) drop-shadow(0 0 50px rgba(201,168,76,0.3));
+    transition: transform 0.2s ease;
+  }
+
+  .heart-container:hover .heart-svg {
+    animation: heartbeatFast 0.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 40px rgba(155,114,207,1)) drop-shadow(0 0 80px rgba(201,168,76,0.6));
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    15% { transform: scale(1.12); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.06); }
+    60% { transform: scale(1); }
+  }
+
+  @keyframes heartbeatFast {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+
+  .heart-counter {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    color: var(--morado-claro);
+    letter-spacing: 0.2em;
+    margin-bottom: 0.5rem;
+  }
+
+  .heart-message {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--crema);
+    text-align: center;
+    min-height: 2em;
+    transition: all 0.5s ease;
+    opacity: 0.8;
+  }
+
+  /* SECCIÓN TIEMPO */
+  .time-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .time-card {
+    background: rgba(45,27,61,0.5);
+    border: 1px solid rgba(155,114,207,0.3);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    transition: all 0.4s ease;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .time-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(155,114,207,0.08));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .time-card:hover { 
+    border-color: var(--dorado); 
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(45,27,61,0.5);
+  }
+  .time-card:hover::after { opacity: 1; }
+
+  .time-number {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: var(--dorado);
+    display: block;
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(201,168,76,0.5);
+  }
+
+  .time-label {
+    font-family: 'IM Fell English', serif;
+    font-size: 0.85rem;
+    color: var(--verde-salvia);
+    letter-spacing: 0.1em;
+    display: block;
+    margin-top: 0.4rem;
+    font-style: italic;
+  }
+
+  /* FIRMA */
+  .signature-block {
+    text-align: center;
+    padding: 2rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+  .signature-block.show { opacity: 1; transform: translateY(0); }
+
+  .signature-name {
+    font-family: 'IM Fell English', serif;
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    color: var(--morado-suave);
+    font-style: italic;
+    text-shadow: 0 0 30px rgba(155,114,207,0.5);
+    animation: signatureGlow 4s ease-in-out infinite;
+  }
+
+  @keyframes signatureGlow {
+    0%, 100% { text-shadow: 0 0 30px rgba(155,114,207,0.5); }
+    50% { text-shadow: 0 0 60px rgba(155,114,207,0.9), 0 0 100px rgba(201,168,76,0.3); }
+  }
+
+  .signature-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem;
+    color: var(--cafe-dorado);
+    letter-spacing: 0.3em;
+    margin-top: 0.5rem;
+    font-weight: 300;
+  }
+
+  /* PETALS / FLORES FLOTANTES */
+  .petal {
+    position: fixed;
+    pointer-events: none;
+    z-index: 5;
+    font-size: 1.2rem;
+    animation: petalFall linear forwards;
+    opacity: 0;
+  }
+
+  @keyframes petalFall {
+    0% { opacity: 0; transform: translateY(-20px) rotate(0deg); }
+    10% { opacity: 0.9; }
+    100% { opacity: 0; transform: translateY(110vh) translateX(var(--sway)) rotate(var(--spin)); }
+  }
+
+  /* SEPARADOR ORNAMENTAL */
+  .ornament-divider {
+    text-align: center;
+    margin: 1rem 0;
+    color: var(--verde-olivo-claro);
+    font-size: 1.2rem;
+    letter-spacing: 0.5em;
+    opacity: 0.7;
+  }
+
+  /* REVEAL BUTTON */
+  .reveal-btn {
+    display: block;
+    margin: 2.5rem auto 0;
+    padding: 12px 40px;
+    background: linear-gradient(135deg, var(--morado-profundo), var(--cafe-oscuro));
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--dorado);
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.25em;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  .reveal-btn.show { opacity: 1; transform: translateY(0); }
+  .reveal-btn:hover { 
+    background: linear-gradient(135deg, var(--morado-medio), var(--cafe-medio));
+    border-color: var(--dorado);
+    box-shadow: 0 5px 30px rgba(107,63,160,0.4);
+    transform: translateY(-2px);
+  }
+
+  /* HIDDEN MESSAGE */
+  .hidden-message {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 1.5s ease;
+  }
+  .hidden-message.expanded { max-height: 600px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .letter-panel { padding: 2rem 1.8rem; }
+    .verse-block { padding: 1.2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="cursorTrail"></div>
+<div class="bg-canvas"></div>
+<div class="particles" id="particles"></div>
+
+<!-- PANTALLA INTRO -->
+<div class="intro-screen" id="introScreen">
+  <div class="seal-ornament">❦</div>
+  <h1 class="intro-title">Para Ti</h1>
+  <p class="intro-subtitle">una carta escrita desde el alma</p>
+  <button class="btn-open" id="openBtn">✦ Abrir Carta ✦</button>
+</div>
+
+<!-- CONTENIDO PRINCIPAL -->
+<div class="main-container">
+  <div class="letter-wrapper" id="letterWrapper">
+
+    <!-- SELLO SUPERIOR -->
+    <div class="seal-top">
+      <div class="seal-ornament">✦</div>
+      <div class="seal-line"><span class="seal-text">CON TODO MI SER · PARA SIEMPRE</span></div>
+    </div>
+
+    <!-- PANEL 1: SALUDO -->
+    <div class="letter-panel">
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+      <div class="greeting" id="g1">
+        Mi amor, mi todo,<br>
+        <span style="font-size: 0.85em; opacity: 0.8;">tú, que eres razón y refugio…</span>
+      </div>
+
+      <p class="letter-paragraph" id="p1">
+        Hay palabras que <span class="word-glow" data-tooltip="como el latido que no para">viven</span> dentro de mí desde el momento en que te conocí, palabras que no caben en el tiempo ordinario, porque lo que siento por ti no obedece ningún reloj ni calendario. <em>Eres tú</em>, y con eso ya todo tiene sentido.
+      </p>
+
+      <p class="letter-paragraph" id="p2">
+        <strong>Te amo.</strong> Con la misma fuerza con que la tierra sostiene los árboles más viejos. Con la misma verdad con que el cielo nocturno regala estrellas sin pedir nada a cambio. Te amo como se ama lo sagrado: en silencio profundo, con reverencia y con fuego al mismo tiempo.
+      </p>
+    </div>
+
+    <!-- PANEL 2: EL TIEMPO -->
+    <div class="letter-panel">
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+      <p class="letter-paragraph" id="p3">
+        Cuando estoy contigo, el tiempo <span class="word-glow" data-tooltip="denso, lleno, real">transcurre lento</span>. No de ese lento aburrido que arrastra los pies, sino de ese lento que <em>vale</em>, el que se saborea, el que se graba en la piel y en la memoria. Cada segundo a tu lado pesa más que horas enteras sin ti.
+      </p>
+
+      <div class="verse-block" id="v1">
+        <p>
+          "Contigo el tiempo no pasa,<br>
+          <em>se asienta</em>, como raíz bajo tierra,<br>
+          como humo de madera que dura<br>
+          y perfuma todo lo que toca."
+        </p>
+      </div>
+
+      <p class="letter-paragraph" id="p4">
+        Transcurre con <strong>fuerza</strong>. Porque lo nuestro no es frágil, no es tibio, no es casual. Es <span class="word-glow" data-tooltip="como dos ríos que se encuentran y ya no se separan">intenso</span> y vivo. Tiene músculo, tiene raíz, tiene historia construida a mano, a mirada, a risa compartida.
+      </p>
+
+      <!-- TIEMPO JUNTOS -->
+      <div class="time-section">
+        <div class="time-card">
+          <span class="time-number" id="tDays">∞</span>
+          <span class="time-label">días contigo</span>
+        </div>
+        <div class="time-card">
+          <span class="time-number">∞</span>
+          <span class="time-label">momentos reales</span>
+        </div>
+        <div class="time-card">
+          <span class="time-number">1</span>
+          <span class="time-label">tú, mi todo</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 3: PASIÓN Y VERDAD -->
+    <div class="letter-panel">
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+      <p class="letter-paragraph" id="p5">
+        Transcurre con <strong>pasión</strong>. Esa que no se anuncia, que no pide permiso, que simplemente <span class="word-glow" data-tooltip="como el fuego que no puede contenerse">arde</span>. La que me hace querer darte lo mejor que tengo, la que convierte cada gesto tuyo en algo que me detiene el aliento por un momento.
+      </p>
+
+      <div class="verse-block" id="v2">
+        <p>
+          "No hay nada más honesto<br>
+          que <em>amarte como te amo</em>,<br>
+          sin cálculo, sin miedo,<br>
+          con todo lo que soy."
+        </p>
+      </div>
+
+      <p class="letter-paragraph" id="p6">
+        Y transcurre con <strong>verdad</strong>. Porque no tengo palabras falsas para ti. Lo que siento es real como el suelo bajo los pies, real como el verde oscuro del olivo que resiste cualquier clima. Tú eres <em>mi certeza más grande</em>. En un mundo de dudas, yo tengo esto claro: <span class="word-glow" data-tooltip="hoy, mañana, siempre">te amo</span>.
+      </p>
+    </div>
+
+    <!-- PANEL 4: CORAZÓN INTERACTIVO -->
+    <div class="letter-panel heart-section">
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+      <p class="letter-paragraph show" style="text-align:center; margin-bottom: 2.5rem;">
+        Cada latido mío es un <em>te amo</em> que no siempre sé decir con palabras.<br>
+        Toca mi corazón y escucha lo que guarda dentro…
+      </p>
+
+      <div class="heart-container" id="heartBtn" title="Tócame">
+        <svg class="heart-svg" viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="hg" cx="50%" cy="40%" r="60%">
+              <stop offset="0%" stop-color="#C4A7E7"/>
+              <stop offset="40%" stop-color="#9B72CF"/>
+              <stop offset="100%" stop-color="#6B3FA0"/>
+            </radialGradient>
+            <radialGradient id="hg2" cx="50%" cy="40%" r="60%">
+              <stop offset="0%" stop-color="#C9A84C"/>
+              <stop offset="100%" stop-color="#8B4513"/>
+            </radialGradient>
+          </defs>
+          <path id="heartPath" d="M50 82 C50 82 8 55 8 28 C8 16 17 7 28 7 C37 7 44 12 50 19 C56 12 63 7 72 7 C83 7 92 16 92 28 C92 55 50 82 50 82Z" 
+                fill="url(#hg)" stroke="rgba(201,168,76,0.4)" stroke-width="1"/>
+          <path d="M30 22 C26 22 23 26 23 30 C23 38 35 47 35 47" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+
+      <p class="heart-counter" id="heartCounter">✦ toca el corazón ✦</p>
+      <p class="heart-message" id="heartMessage">…</p>
+    </div>
+
+    <!-- PANEL 5: DECLARACIÓN FINAL -->
+    <div class="letter-panel">
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+      <p class="letter-paragraph" id="p7">
+        Eres <span class="word-glow" data-tooltip="sin exagerar, sin poesía vacía: real">mi todo</span>. No porque lo diga una canción, sino porque cuando imagino lo que quiero en la vida, siempre apareces tú. Primero tú. Siempre tú.
+      </p>
+
+      <p class="letter-paragraph" id="p8">
+        Esta carta no tiene final porque mi amor tampoco lo tiene. Se sigue escribiendo en cada mañana que amanece contigo en mis pensamientos, en cada noche que termina con tu nombre en mis labios, en cada momento ordinario que se vuelve <em>extraordinario</em> simplemente porque eres tú la que está ahí.
+      </p>
+
+      <button class="reveal-btn" id="revealBtn">✦ Un último secreto ✦</button>
+      <div class="hidden-message" id="hiddenMsg">
+        <div class="verse-block" style="margin-top: 2rem;">
+          <p>
+            "Si tuviera que elegir entre el mundo entero<br>
+            y un solo momento contigo,<br>
+            <em>elegiría ese momento</em>.<br>
+            Y lo elegiría <strong>cada vez.</strong>"
+          </p>
+        </div>
+        <p class="letter-paragraph show" style="margin-top: 1.5rem; text-align: center;">
+          Eso eres tú para mí.<br>
+          La elección más <span class="word-glow" data-tooltip="siempre, siempre, siempre">fácil</span> y la más <span class="word-glow" data-tooltip="porque me cambió para siempre">importante</span> de mi vida.
+        </p>
+      </div>
+    </div>
+
+    <!-- FIRMA -->
+    <div class="signature-block" id="sig">
+      <div class="ornament-divider">· · · ✦ · · ·</div>
+      <div style="margin-top: 1.5rem;">
+        <p style="font-family: 'IM Fell English', serif; color: var(--verde-salvia); font-style: italic; font-size: 1rem; letter-spacing: 0.15em; margin-bottom: 1rem;">Con toda el alma,</p>
+        <p class="signature-name">Fer</p>
+        <p class="signature-sub">SIEMPRE · PARA SIEMPRE · CONTIGO</p>
+      </div>
+      <div class="ornament-divider" style="margin-top: 1.5rem;">· · · ✦ · · ·</div>
+    </div>
+
+  </div><!-- /letter-wrapper -->
+</div><!-- /main-container -->
+
+<audio id="bgMusic" src="l0v3.mp3" loop preload="auto"></audio>
+
+<script>
+// ── CURSOR ──────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const cursorTrail = document.getElementById('cursorTrail');
+let mx = 0, my = 0, tx = 0, ty = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx - 6 + 'px';
+  cursor.style.top = my - 6 + 'px';
+});
+
+(function animTrail() {
+  tx += (mx - tx) * 0.12;
+  ty += (my - ty) * 0.12;
+  cursorTrail.style.left = tx - 15 + 'px';
+  cursorTrail.style.top = ty - 15 + 'px';
+  requestAnimationFrame(animTrail);
+})();
+
+// ── PARTÍCULAS ───────────────────────────────────────
+const pContainer = document.getElementById('particles');
+const pColors = ['#9B72CF', '#C9A84C', '#8FAF7E', '#C4A7E7', '#8B4513', '#6B7A5C'];
+const pShapes = ['●', '·', '✦', '⬡', '◆', '○'];
+
+function createParticle() {
+  const el = document.createElement('span');
+  el.className = 'particle';
+  const size = Math.random() * 6 + 2;
+  el.style.cssText = `
+    left: ${Math.random() * 100}%;
+    width: ${size}px;
+    height: ${size}px;
+    background: ${pColors[Math.floor(Math.random() * pColors.length)]};
+    --drift: ${(Math.random() - 0.5) * 200}px;
+    animation-duration: ${Math.random() * 12 + 8}s;
+    animation-delay: ${Math.random() * 5}s;
+    opacity: 0;
+  `;
+  pContainer.appendChild(el);
+  setTimeout(() => el.remove(), 20000);
+}
+
+setInterval(createParticle, 600);
+
+// ── PÉTALOS ──────────────────────────────────────────
+const petalEmojis = ['🌸','🍂','✾','❀','⟡','✿'];
+
+function createPetal(x, y) {
+  const el = document.createElement('span');
+  el.className = 'petal';
+  el.textContent = petalEmojis[Math.floor(Math.random() * petalEmojis.length)];
+  const spin = (Math.random() - 0.5) * 720;
+  const sway = (Math.random() - 0.5) * 300;
+  el.style.cssText = `
+    left: ${x}px; top: ${y}px;
+    --sway: ${sway}px; --spin: ${spin}deg;
+    animation-duration: ${Math.random() * 3 + 3}s;
+    font-size: ${Math.random() * 1.2 + 0.8}rem;
+    color: ${pColors[Math.floor(Math.random() * pColors.length)]};
+    filter: drop-shadow(0 0 5px currentColor);
+  `;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 6000);
+}
+
+document.addEventListener('click', e => {
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => createPetal(
+      e.clientX + (Math.random() - 0.5) * 60,
+      e.clientY + (Math.random() - 0.5) * 60
+    ), i * 80);
+  }
+});
+
+// ── INTRO ─────────────────────────────────────────────
+const introScreen = document.getElementById('introScreen');
+const openBtn = document.getElementById('openBtn');
+const letterWrapper = document.getElementById('letterWrapper');
+
+openBtn.addEventListener('click', () => {
+  // Reproducir música al cerrar la bienvenida
+  const bgMusic = document.getElementById('bgMusic');
+  bgMusic.volume = 0;
+  bgMusic.play().catch(() => {});
+  // Fade in suave del volumen
+  let vol = 0;
+  const fadeIn = setInterval(() => {
+    vol = Math.min(vol + 0.03, 0.6);
+    bgMusic.volume = vol;
+    if (vol >= 0.6) clearInterval(fadeIn);
+  }, 100);
+
+  introScreen.classList.add('hidden');
+  setTimeout(() => {
+    introScreen.style.display = 'none';
+    letterWrapper.classList.add('visible');
+    startAnimations();
+  }, 1500);
+  for (let i = 0; i < 15; i++) {
+    setTimeout(() => createPetal(
+      Math.random() * window.innerWidth,
+      Math.random() * window.innerHeight / 2
+    ), i * 100);
+  }
+});
+
+// ── ANIMACIONES SCROLL ───────────────────────────────
+function startAnimations() {
+  const elements = [
+    {id: 'g1', delay: 200},
+    {id: 'p1', delay: 500},
+    {id: 'p2', delay: 900},
+    {id: 'p3', delay: 1300},
+    {id: 'v1', delay: 1800},
+    {id: 'p4', delay: 2300},
+    {id: 'p5', delay: 2800},
+    {id: 'v2', delay: 3200},
+    {id: 'p6', delay: 3700},
+    {id: 'p7', delay: 4200},
+    {id: 'p8', delay: 4700},
+    {id: 'revealBtn', delay: 5200},
+    {id: 'sig', delay: 5700},
+  ];
+
+  elements.forEach(({id, delay}) => {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('show');
+    }, delay);
+  });
+}
+
+// Observer para elementos visibles durante scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('show');
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.letter-paragraph, .verse-block, .greeting, .signature-block, .reveal-btn')
+  .forEach(el => observer.observe(el));
+
+// ── CORAZÓN INTERACTIVO ──────────────────────────────
+const heartMessages = [
+  "Te amo sin medida, sin condición, sin límite.",
+  "Eres la persona más importante de mi vida.",
+  "Cada día a tu lado es el mejor día.",
+  "Mi corazón late así de fuerte solo por ti.",
+  "Eres mi calma y mi tormenta, mi todo.",
+  "Contigo aprendí que el amor sí existe de verdad.",
+  "Nunca voy a dejar de amarte. Nunca.",
+  "Eres mi hogar, estés donde estés.",
+  "Te elegiría de nuevo en cada vida posible.",
+  "Mi amor por ti crece cada vez que te veo.",
+];
+
+let heartCount = 0;
+const heartBtn = document.getElementById('heartBtn');
+const heartCounter = document.getElementById('heartCounter');
+const heartMsg = document.getElementById('heartMessage');
+const heartPath = document.getElementById('heartPath');
+
+heartBtn.addEventListener('click', () => {
+  heartCount++;
+  const msg = heartMessages[(heartCount - 1) % heartMessages.length];
+  
+  heartMsg.style.opacity = '0';
+  setTimeout(() => {
+    heartMsg.textContent = msg;
+    heartMsg.style.opacity = '1';
+  }, 300);
+
+  heartCounter.textContent = `✦ ${heartCount} ${heartCount === 1 ? 'latido' : 'latidos'} ✦`;
+
+  // Cambiar color del corazón progresivamente
+  const colors = ['url(#hg)', 'url(#hg2)', 'url(#hg)', 'url(#hg2)'];
+  heartPath.setAttribute('fill', colors[heartCount % colors.length]);
+
+  // Pétalos desde el corazón
+  const rect = heartBtn.getBoundingClientRect();
+  for (let i = 0; i < 7; i++) {
+    setTimeout(() => createPetal(
+      rect.left + rect.width / 2 + (Math.random() - 0.5) * 40,
+      rect.top + rect.height / 2 + (Math.random() - 0.5) * 40
+    ), i * 60);
+  }
+});
+
+// ── BOTÓN SECRETO ────────────────────────────────────
+const revealBtn = document.getElementById('revealBtn');
+const hiddenMsg = document.getElementById('hiddenMsg');
+let revealed = false;
+
+revealBtn.addEventListener('click', () => {
+  if (!revealed) {
+    hiddenMsg.classList.add('expanded');
+    revealBtn.textContent = '✦ Guardado en mi corazón ✦';
+    revealBtn.style.color = 'var(--verde-salvia)';
+    revealBtn.style.borderColor = 'var(--verde-salvia)';
+    revealed = true;
+
+    for (let i = 0; i < 20; i++) {
+      setTimeout(() => createPetal(
+        Math.random() * window.innerWidth,
+        Math.random() * window.innerHeight
+      ), i * 100);
+    }
+  }
+});
+</script>
+</body>
+</html>
